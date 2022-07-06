@@ -1,0 +1,47 @@
+Bootstrap: debootstrap
+OSVersion: jammy
+MirrorURL: http://archive.ubuntu.com/ubuntu/
+
+%post
+
+  echo "deb http://archive.ubuntu.com/ubuntu jammy main
+deb http://se.archive.ubuntu.com/ubuntu/ jammy main restricted
+deb http://se.archive.ubuntu.com/ubuntu/ jammy-updates main restricted" >> /etc/apt/sources.list
+  apt update
+  apt install -y git libmodule-install-perl libcatalyst-perl libcatalyst-devel-perl libcatalyst-engine-apache-perl dos2unix libtest-more-utf8-perl libcatalyst-plugin-static-simple-perl libcatalyst-action-renderview-perl libdaemon-control-perl libcatalyst-plugin-session-perl libcatalyst-plugin-session-state-cookie-perl libcatalyst-plugin-session-store-fastmmap-perl libcatalyst-controller-formbuilder-perl libhtml-template-perl pdl sqlite3 libclass-dbi-perl libdate-simple-perl libgd-svg-perl libdatetime-format-mysql-perl libhtml-tableextract-perl libinline-c-perl libnumber-format-perl libspreadsheet-parsexlsx-perl libstatistics-descriptive-perl libxml-simple-perl build-essential r-cran-rgl r-cran-devtools
+
+  mkdir /workspace  
+  cd /workspace
+
+  git clone https://github.com/stela2502/Stefans_Lib_Esentials.git
+  cd Stefans_Lib_Esentials/Stefans_Libs_Essentials/
+  perl Makefile.PL --prefix /usr
+  make
+  make install
+  
+  cd /workspace/
+  git clone https://github.com/stela2502/SCExV.git
+  cd SCExV
+  perl Makefile.PL --prefix /usr
+  make
+  make install
+
+  cd /workspace
+
+  echo "Sys.unsetenv("GITHUB_PAT")
+devtools::install_github('stela2502/RFclust.SGE')
+devtools::install_github('stela2502/Rscexv')" > installRlibs.R
+  R CMD BATCH installRlibs.R
+
+
+
+  echo "jupyter lab --port 9734 --ip=0.0.0.0 --allow-root --no-browser" > /workspace/launch_jupyter.sh
+  chmod +x /workspace/launch_jupyter.sh
+
+%runscript
+  /workspace/launch_jupyter.sh
+
+%environment
+    export PYTHONNOUSERSITE="true"
+    export MYVAR="Hello"
+    export LC_ALL=C
